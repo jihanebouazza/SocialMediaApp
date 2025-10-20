@@ -1,29 +1,39 @@
 package org.example.socialmediaapp.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 import java.time.ZonedDateTime;
 
+@Entity
 public class Location {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
-    private String street;
-    private String city;
-    private String state;
-    private String country;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX", timezone = "Europe/Paris")
-    private ZonedDateTime registerDate;
 
-    public Location(String street, String city, String state, String country, ZonedDateTime registerDate) {
+    private String street;
+
+    private String city;
+
+    private String state;
+
+    private String country;
+
+    /*@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX", timezone = "Europe/Paris")
+    private ZonedDateTime registerDate;*/
+    private String timezone;
+    @OneToOne(mappedBy = "location")
+    @JsonBackReference
+    private User user;
+
+    public Location(String street, String city, String state, String country, String timezone) {
         this.street = street;
         this.city = city;
         this.state = state;
         this.country = country;
-        this.registerDate = registerDate;
+        this.timezone = timezone;
     }
     public Location() {}
 
@@ -43,8 +53,8 @@ public class Location {
         return country;
     }
 
-    public ZonedDateTime getRegisterDate() {
-        return registerDate;
+    public String getTimezone() {
+        return timezone;
     }
 
     public String getId() {
@@ -67,9 +77,7 @@ public class Location {
         this.country = country;
     }
 
-    public void setRegisterDate(ZonedDateTime registerDate) {
-        this.registerDate = registerDate;
+    public void setTimezone(String timezone) {
+        this.timezone = timezone;
     }
-
-
 }

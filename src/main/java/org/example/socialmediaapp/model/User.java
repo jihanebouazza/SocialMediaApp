@@ -1,6 +1,7 @@
 package org.example.socialmediaapp.model;
 
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import org.example.socialmediaapp.model.Location;
 
@@ -20,7 +21,9 @@ public class User {
     private String phone;
     private String picture;
 
-
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "location_id")
+    @JsonManagedReference
     private Location location;
 
     public User(){}
