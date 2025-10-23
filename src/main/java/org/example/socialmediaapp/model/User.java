@@ -1,8 +1,12 @@
+
 package org.example.socialmediaapp.model;
 
-
+import org.example.socialmediaapp.model.User;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import org.example.socialmediaapp.model.Location;
+        import org.example.socialmediaapp.model.Location;
+
+import java.util.List;
 
 @Entity
 
@@ -20,9 +24,12 @@ public class User {
     private String phone;
     private String picture;
 
-
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "location_id")
+    @JsonManagedReference
     private Location location;
-
+    @OneToMany( mappedBy = " owner ")
+    private List <Post> posts;
     public User(){}
     public User(String string, String mr, String john, String doe, String mail, Location location) {}
 
