@@ -1,9 +1,11 @@
-package org.example.socialmediaapp.model;
 
+package org.example.socialmediaapp.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import org.example.socialmediaapp.model.Location;
+        import org.example.socialmediaapp.model.Location;
+
+import java.util.List;
 
 @Entity
 
@@ -26,35 +28,106 @@ public class User {
     @JsonManagedReference
     private Location location;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List <Post> posts;
     public User(){}
-    public User(String string, String mr, String john, String doe, String mail, Location location) {}
 
-    // Getters et setters
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
+    public User(String id, String title, String firstName, String lastName, String email, String dateOfBirth, String registerDate, String phone, String picture, Location location, List<Post> posts) {
+        this.id = id;
+        this.title = title;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.dateOfBirth = dateOfBirth;
+        this.registerDate = registerDate;
+        this.phone = phone;
+        this.picture = picture;
+        this.location = location;
+        this.posts = posts;
+    }
 
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
+    public String getId() {
+        return id;
+    }
 
-    public String getFirstName() { return firstName; }
-    public void setFirstName(String firstName) { this.firstName = firstName; }
+    public String getTitle() {
+        return title;
+    }
 
-    public String getLastName() { return lastName; }
-    public void setLastName(String lastName) { this.lastName = lastName; }
+    public String getFirstName() {
+        return firstName;
+    }
 
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
+    public String getLastName() {
+        return lastName;
+    }
 
-    public String getDateOfBirth() { return dateOfBirth; }
-    public void setDateOfBirth(String dateOfBirth) { this.dateOfBirth = dateOfBirth; }
+    public String getEmail() {
+        return email;
+    }
 
-    public String getRegisterDate() { return registerDate; }
-    public void setRegisterDate(String registerDate) { this.registerDate = registerDate; }
+    public String getDateOfBirth() {
+        return dateOfBirth;
+    }
 
-    public String getPhone() { return phone; }
-    public void setPhone(String phone) { this.phone = phone; }
+    public String getRegisterDate() {
+        return registerDate;
+    }
 
-    public String getPicture() { return picture; }
-    public void setPicture(String picture) { this.picture = picture; }
+    public String getPhone() {
+        return phone;
+    }
 
+    public String getPicture() {
+        return picture;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public List<Post> getPosts() {
+        return posts;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setDateOfBirth(String dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
+    }
+
+    public void setRegisterDate(String registerDate) {
+        this.registerDate = registerDate;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public void setPicture(String picture) {
+        this.picture = picture;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
+    }
+
+    public void setPosts(List<Post> posts) {
+        this.posts = posts;
+    }
 }
