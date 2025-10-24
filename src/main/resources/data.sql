@@ -67,3 +67,27 @@ INSERT INTO post_tags (post_id, tags) VALUES
                                           ('p1111111-1111-1111-1111-pppppppppppp', 'detective'),
                                           ('p3333333-3333-3333-3333-pppppppppppp', 'family'),
                                           ('p3333333-3333-3333-3333-pppppppppppp', 'springfield');
+
+
+-- 💬 Comments on Sherlock Holmes' first post
+INSERT INTO comment (id, message, publish_date, user_id, post_id)
+VALUES
+    ('c1111111-1111-1111-1111-cccccccccccc', 'Brilliant work as always, Sherlock!', '2025-10-20T11:00:00', 'bbbbbbb2-2222-2222-2222-bbbbbbbbbbbb', 'p1111111-1111-1111-1111-pppppppppppp'),
+    ('c2222222-2222-2222-2222-cccccccccccc', 'You never fail to impress!', '2025-10-20T11:15:00', 'aaaaaaa1-1111-1111-1111-aaaaaaaaaaaa', 'p1111111-1111-1111-1111-pppppppppppp');
+
+-- 💬 Comments on Sherlock Holmes' tea time post
+INSERT INTO comment (id, message, publish_date, user_id, post_id)
+VALUES
+    ('c3333333-3333-3333-3333-cccccccccccc', 'I’d love to join for tea next time!', '2025-10-21T14:30:00', 'bbbbbbb2-2222-2222-2222-bbbbbbbbbbbb', 'p2222222-2222-2222-2222-pppppppppppp');
+
+-- 💬 Comments on Marge Simpson’s family dinner post
+INSERT INTO comment (id, message, publish_date, user_id, post_id)
+VALUES
+    ('c4444444-4444-4444-4444-cccccccccccc', 'Looks delicious! What’s for dinner?', '2025-10-19T19:30:00', 'aaaaaaa1-1111-1111-1111-aaaaaaaaaaaa', 'p3333333-3333-3333-3333-pppppppppppp'),
+    ('c5555555-5555-5555-5555-cccccccccccc', 'Such a lovely family moment ❤️', '2025-10-19T19:45:00', 'bbbbbbb2-2222-2222-2222-bbbbbbbbbbbb', 'p3333333-3333-3333-3333-pppppppppppp');
+
+-- 💬 Comments on Marge Simpson’s park post
+INSERT INTO comment (id, message, publish_date, user_id, post_id)
+VALUES
+    ('c6666666-6666-6666-6666-cccccccccccc', 'The sunset is beautiful! 🌇', '2025-10-22T18:00:00', 'aaaaaaa1-1111-1111-1111-aaaaaaaaaaaa', 'p4444444-4444-4444-4444-pppppppppppp'),
+    ('c7777777-7777-7777-7777-cccccccccccc', 'Springfield looks peaceful tonight.', '2025-10-22T18:15:00', 'bbbbbbb2-2222-2222-2222-bbbbbbbbbbbb', 'p4444444-4444-4444-4444-pppppppppppp');

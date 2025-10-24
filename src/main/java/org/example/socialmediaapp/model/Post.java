@@ -30,9 +30,13 @@ public class Post {
     @JsonBackReference
     private User user;
 
+    @OneToMany(mappedBy = "post",cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<Comment> comments;
+
     public Post() {}
 
-    public Post(String id, User owner, LocalDateTime publishDate, List<String> tags, String link, int likes, String image, String text) {
+    public Post(String id, User user, LocalDateTime publishDate, List<String> tags, String link, int likes, String image, String text) {
         this.id = id;
         this.user = user;
         this.publishDate = publishDate;

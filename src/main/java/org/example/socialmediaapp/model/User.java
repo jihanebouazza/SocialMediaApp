@@ -31,6 +31,12 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonManagedReference
     private List <Post> posts;
+
+    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<Comment> comments;
+
+
     public User(){}
 
     public User(String id, String title, String firstName, String lastName, String email, String dateOfBirth, String registerDate, String phone, String picture, Location location, List<Post> posts) {
