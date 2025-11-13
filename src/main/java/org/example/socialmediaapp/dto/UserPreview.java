@@ -27,7 +27,4 @@ public class UserPreview {
     public void setLastName(String lastName) {this.lastName = lastName;}
     public String getPicture() {return picture;}
     public void setPicture(String picture) {this.picture = picture;}
-
-
-
 }

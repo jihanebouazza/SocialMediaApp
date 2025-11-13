@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonMerge;
 import jakarta.persistence.*;
+import org.hibernate.annotations.UuidGenerator;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -11,7 +13,7 @@ import java.util.List;
 public class Post {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @UuidGenerator
     private String  id;
     private String text;
 
@@ -27,11 +29,11 @@ public class Post {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    @JsonBackReference
+    @JsonBackReference("user-post")
     private User user;
 
     @OneToMany(mappedBy = "post",cascade = CascadeType.ALL)
-    @JsonManagedReference
+    @JsonManagedReference("post-comment")
     private List<Comment> comments;
 
     public Post() {}

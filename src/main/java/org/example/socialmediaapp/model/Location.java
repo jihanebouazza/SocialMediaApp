@@ -3,6 +3,7 @@ package org.example.socialmediaapp.model;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.time.ZonedDateTime;
 
@@ -10,7 +11,7 @@ import java.time.ZonedDateTime;
 public class Location {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @UuidGenerator
     private String id;
 
     private String street;
@@ -25,7 +26,7 @@ public class Location {
     private ZonedDateTime registerDate;*/
     private String timezone;
     @OneToOne(mappedBy = "location")
-    @JsonBackReference
+    @JsonBackReference("user-location")
     private User user;
 
     public Location(String street, String city, String state, String country, String timezone) {

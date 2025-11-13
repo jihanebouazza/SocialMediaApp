@@ -4,6 +4,7 @@ package org.example.socialmediaapp.model;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
         import org.example.socialmediaapp.model.Location;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.util.List;
 
@@ -12,28 +13,34 @@ import java.util.List;
 @Table(name = "users")
 public class User {
     @Id
-    @GeneratedValue(strategy= GenerationType.UUID)
+    @UuidGenerator
     private String id;
     private String title;
+
+    @Column(nullable = false)
     private String firstName;
+
+    @Column(nullable = false)
     private String lastName;
+
+    @Column(nullable = false)
     private String email;
     private String dateOfBirth;
-    private String registerDate;
+    private String registerDate = java.time.LocalDate.now().toString();
     private String phone;
     private String picture;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "location_id")
-    @JsonManagedReference
+    @JsonManagedReference("user-location")
     private Location location;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    @JsonManagedReference
+    @JsonManagedReference("user-post")
     private List <Post> posts;
 
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
-    @JsonManagedReference
+    @JsonManagedReference("user-comment")
     private List<Comment> comments;
 
 

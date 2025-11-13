@@ -2,24 +2,25 @@ package org.example.socialmediaapp.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
 
 @Entity
 public class Comment {
     @Id
-    @GeneratedValue(strategy= GenerationType.UUID)
+    @UuidGenerator
     private String id;
     private String message;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    @JsonBackReference
+    @JsonBackReference("user-comment")
     private User user;
 
     @ManyToOne
     @JoinColumn(name = "post_id")
-    @JsonBackReference
+    @JsonBackReference("post-comment")
     private Post post;
     private LocalDateTime publishDate = LocalDateTime.now();
 
