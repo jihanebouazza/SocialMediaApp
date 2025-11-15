@@ -77,7 +77,13 @@ public class UserService {
         return userDao.save(user);
     }
 
-    public void deleteUser(String id) {
+    public String deleteUser(String id) {
+
+        if (!userDao.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+        }
+
         userDao.deleteById(id);
+        return id;
     }
 }

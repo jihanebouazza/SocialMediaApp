@@ -1,11 +1,18 @@
 package org.example.socialmediaapp.controller;
 
 import org.example.socialmediaapp.dao.PostDao;
+import org.example.socialmediaapp.dto.PageResponse;
+import org.example.socialmediaapp.dto.PostCreate;
+import org.example.socialmediaapp.dto.PostPreview;
 import org.example.socialmediaapp.model.Post;
+import org.example.socialmediaapp.model.User;
+import org.example.socialmediaapp.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -14,10 +21,46 @@ import java.util.List;
 public class PostController {
 
     @Autowired
-    private PostDao postDao;
+    private PostService postService;
 
     @GetMapping
-    public List<Post> getAllPosts() {
-        return postDao.findAll();
+    public PageResponse<PostPreview> getAllPosts(@RequestParam(required = false) String tag, @PageableDefault(sort = "publishDate",direction = Sort.Direction.DESC, size = 10) Pageable pageable) {
+        Page<PostPreview> page;
+
+        if (tag != null && !tag.isBlank()) {
+            page = postService.getPostsByTag(tag, pageable);
+        } else {
+            page = postService.getAllPostsPreview(pageable);
+        }
+
+
+        return new PageResponse<>(
+                page.getContent(),
+                page.getTotalElements(),
+                page.getNumber(),
+                page.getSize()
+        );
     }
+
+    @GetMapping("/{id}")
+    public Post getPostById(@PathVariable String id) {
+        return  postService.getPostById(id);
+    }
+
+    @PostMapping
+    public Post createPost(@RequestBody PostCreate post) {
+        return postService.createPost(post);
+    }
+
+    @PutMapping("/{id}")
+    public Post updatePost(@PathVariable String id, @RequestBody Post post) {
+        return postService.updatePost(id, post);
+    }
+
+    @DeleteMapping("/{id}")
+    public String deleteUser(@PathVariable String id) {
+        return postService.deletePost(id);
+    }
+
+
 }

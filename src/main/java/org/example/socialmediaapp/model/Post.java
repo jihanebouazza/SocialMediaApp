@@ -105,7 +105,7 @@ public class Post {
         this.publishDate = publishDate;
     }
 
-    public void setOwner(User user) {
+    public void setUser(User user) {
         this.user = user;
     }
 
