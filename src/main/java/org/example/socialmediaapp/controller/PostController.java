@@ -24,15 +24,8 @@ public class PostController {
     private PostService postService;
 
     @GetMapping
-    public PageResponse<PostPreview> getAllPosts(@RequestParam(required = false) String tag, @PageableDefault(sort = "publishDate",direction = Sort.Direction.DESC, size = 10) Pageable pageable) {
-        Page<PostPreview> page;
-
-        if (tag != null && !tag.isBlank()) {
-            page = postService.getPostsByTag(tag, pageable);
-        } else {
-            page = postService.getAllPostsPreview(pageable);
-        }
-
+    public PageResponse<PostPreview> getAllPosts(@PageableDefault(sort = "publishDate",direction = Sort.Direction.DESC, size = 10) Pageable pageable) {
+        Page<PostPreview> page =postService.getAllPostsPreview(pageable);
 
         return new PageResponse<>(
                 page.getContent(),
