@@ -44,14 +44,6 @@ public class CommentService {
 
     public Comment createComment(CommentCreate comment) {
 
-        if (comment.user() == null || comment.user().isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "user_id is required");
-        }
-
-        if (comment.post() == null || comment.post().isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "post_id is required");
-        }
-
         User user = userService.getUserById(comment.user());
         Post post = postService.getPostById(comment.post());
 

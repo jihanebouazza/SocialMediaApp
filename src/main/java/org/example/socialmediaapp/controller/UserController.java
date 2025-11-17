@@ -1,9 +1,11 @@
 package org.example.socialmediaapp.controller;
 
 
+import jakarta.validation.Valid;
 import org.example.socialmediaapp.dto.CommentPreview;
 import org.example.socialmediaapp.dto.PageResponse;
 import org.example.socialmediaapp.dto.PostPreview;
+import org.example.socialmediaapp.dto.UserCreate;
 import org.example.socialmediaapp.model.User;
 import org.example.socialmediaapp.service.CommentService;
 import org.example.socialmediaapp.service.PostService;
@@ -48,7 +50,7 @@ public class UserController {
 
 
     @PostMapping
-    public User createUser(@RequestBody User user) {
+    public User createUser(@RequestBody @Valid UserCreate user) {
         return userService.createUser(user);
     }
 

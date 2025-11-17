@@ -2,6 +2,7 @@ package org.example.socialmediaapp.service;
 
 import jakarta.transaction.Transactional;
 import org.example.socialmediaapp.dao.UserDao;
+import org.example.socialmediaapp.dto.UserCreate;
 import org.example.socialmediaapp.model.Location;
 import org.example.socialmediaapp.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,21 +29,30 @@ public class UserService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
     }
 
-    public User createUser(User user) {
+    public User createUser(UserCreate user) {
 
-        if (user.getFirstName() == null || user.getFirstName().isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "firstName is required");
+        User newUser = new User();
+        newUser.setTitle(user.title());
+        newUser.setFirstName(user.firstName());
+        newUser.setLastName(user.lastName());
+        newUser.setEmail(user.email());
+        newUser.setDateOfBirth(user.dateOfBirth());
+        newUser.setPhone(user.phone());
+        newUser.setPicture(user.picture());
+
+        if (user.location() != null) {
+            Location newLoc = new Location();
+            newLoc.setStreet(user.location().street());
+            newLoc.setCity(user.location().city());
+            newLoc.setState(user.location().state());
+            newLoc.setCountry(user.location().country());
+            newLoc.setTimezone(user.location().timezone());
+
+
+            newUser.setLocation(newLoc);
         }
 
-        if (user.getLastName() == null || user.getLastName().isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "lastName is required");
-        }
-
-        if (user.getEmail() == null || user.getEmail().isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "email is required");
-        }
-
-        return userDao.save(user);
+        return userDao.save(newUser);
     }
 
     public User updateUser(String id, User userDetails) {

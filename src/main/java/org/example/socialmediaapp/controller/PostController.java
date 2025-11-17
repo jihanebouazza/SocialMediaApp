@@ -1,5 +1,6 @@
 package org.example.socialmediaapp.controller;
 
+import jakarta.validation.Valid;
 import org.example.socialmediaapp.dao.PostDao;
 import org.example.socialmediaapp.dto.CommentPreview;
 import org.example.socialmediaapp.dto.PageResponse;
@@ -40,7 +41,7 @@ public class PostController {
     }
 
     @PostMapping
-    public Post createPost(@RequestBody PostCreate post) {
+    public Post createPost(@RequestBody @Valid PostCreate post) {
         return postService.createPost(post);
     }
 

@@ -1,7 +1,9 @@
 package org.example.socialmediaapp.dto;
 
+import jakarta.validation.constraints.NotBlank;
+
 public record CommentCreate(
-        String message,
-        String user,
-        String post
+        @NotBlank String message,
+        @NotBlank String user,
+        @NotBlank String post
 ) {}

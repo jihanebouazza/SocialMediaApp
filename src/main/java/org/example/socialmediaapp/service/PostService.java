@@ -43,22 +43,6 @@ public class PostService {
 
     public Post createPost(PostCreate post) {
 
-        if (post.text() == null || post.text().isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "post description is required");
-        }
-
-        if (post.image() == null || post.image().isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "image is required");
-        }
-
-        if (post.tags() == null || post.tags().isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "tag is required");
-        }
-
-        if (post.user() == null || post.user().isBlank()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "user_id is required");
-        }
-
         User user = userService.getUserById(post.user());
 
 

@@ -22,8 +22,7 @@ public class Location {
 
     private String country;
 
-    /*@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ssXXX", timezone = "Europe/Paris")
-    private ZonedDateTime registerDate;*/
+
     private String timezone;
     @OneToOne(mappedBy = "location")
     @JsonBackReference("user-location")

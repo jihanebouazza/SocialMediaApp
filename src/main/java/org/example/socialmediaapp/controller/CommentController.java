@@ -1,6 +1,7 @@
 package org.example.socialmediaapp.controller;
 
 
+import jakarta.validation.Valid;
 import org.example.socialmediaapp.dto.CommentCreate;
 import org.example.socialmediaapp.dto.CommentPreview;
 import org.example.socialmediaapp.dto.PageResponse;
@@ -28,7 +29,7 @@ public class CommentController {
     }
 
     @PostMapping
-    public Comment createComment(@RequestBody CommentCreate comment) {
+    public Comment createComment(@RequestBody @Valid CommentCreate comment) {
         return commentService.createComment(comment);
     }
 

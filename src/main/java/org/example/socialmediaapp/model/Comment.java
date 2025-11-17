@@ -11,6 +11,8 @@ public class Comment {
     @Id
     @UuidGenerator
     private String id;
+
+    @Column(nullable = false)
     private String message;
 
     @ManyToOne

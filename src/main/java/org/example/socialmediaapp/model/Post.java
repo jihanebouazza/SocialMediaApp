@@ -15,6 +15,8 @@ public class Post {
     @Id
     @UuidGenerator
     private String  id;
+
+    @Column(nullable = false)
     private String text;
 
     private String image;
