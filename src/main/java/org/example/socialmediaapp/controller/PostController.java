@@ -1,11 +1,13 @@
 package org.example.socialmediaapp.controller;
 
 import org.example.socialmediaapp.dao.PostDao;
+import org.example.socialmediaapp.dto.CommentPreview;
 import org.example.socialmediaapp.dto.PageResponse;
 import org.example.socialmediaapp.dto.PostCreate;
 import org.example.socialmediaapp.dto.PostPreview;
+import org.example.socialmediaapp.model.Comment;
 import org.example.socialmediaapp.model.Post;
-import org.example.socialmediaapp.model.User;
+import org.example.socialmediaapp.service.CommentService;
 import org.example.socialmediaapp.service.PostService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -22,22 +24,19 @@ public class PostController {
 
     @Autowired
     private PostService postService;
+    @Autowired
+    private CommentService commentService;
 
     @GetMapping
-    public PageResponse<PostPreview> getAllPosts(@PageableDefault(sort = "publishDate",direction = Sort.Direction.DESC, size = 10) Pageable pageable) {
-        Page<PostPreview> page =postService.getAllPostsPreview(pageable);
+    public PageResponse<PostPreview> getAllPosts(@PageableDefault(sort = "publishDate", direction = Sort.Direction.DESC, size = 10) Pageable pageable) {
+        Page<PostPreview> page = postService.getAllPostsPreview(pageable);
 
-        return new PageResponse<>(
-                page.getContent(),
-                page.getTotalElements(),
-                page.getNumber(),
-                page.getSize()
-        );
+        return new PageResponse<>(page.getContent(), page.getTotalElements(), page.getNumber(), page.getSize());
     }
 
     @GetMapping("/{id}")
     public Post getPostById(@PathVariable String id) {
-        return  postService.getPostById(id);
+        return postService.getPostById(id);
     }
 
     @PostMapping
@@ -51,9 +50,16 @@ public class PostController {
     }
 
     @DeleteMapping("/{id}")
-    public String deleteUser(@PathVariable String id) {
+    public String deletePost(@PathVariable String id) {
         return postService.deletePost(id);
     }
 
+    @GetMapping("{id}/comments")
+    public PageResponse<CommentPreview> getCommentsByPost(@PathVariable String id, @PageableDefault(sort = "publishDate", direction = Sort.Direction.DESC, size = 10) Pageable pageable) {
+
+        Page<CommentPreview> page = commentService.getCommentsByPost(id, pageable);
+
+        return new PageResponse<>(page.getContent(), page.getTotalElements(), page.getNumber(), page.getSize());
+    }
 
 }

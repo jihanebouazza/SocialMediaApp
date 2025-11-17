@@ -1,9 +1,11 @@
 package org.example.socialmediaapp.controller;
 
 
+import org.example.socialmediaapp.dto.CommentPreview;
 import org.example.socialmediaapp.dto.PageResponse;
 import org.example.socialmediaapp.dto.PostPreview;
 import org.example.socialmediaapp.model.User;
+import org.example.socialmediaapp.service.CommentService;
 import org.example.socialmediaapp.service.PostService;
 import org.example.socialmediaapp.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,9 @@ public class UserController {
 
     @Autowired
     private PostService postService;
+
+    @Autowired
+    private CommentService commentService;
 
     @GetMapping
     public PageResponse<User> getAllUsers(@PageableDefault(sort = "registerDate", direction = Sort.Direction.DESC, size = 10) Pageable pageable) {
@@ -60,6 +65,18 @@ public class UserController {
     @GetMapping("/{id}/posts")
     public PageResponse<PostPreview> getPostsByUser(@PathVariable String id, @PageableDefault(sort = "publishDate", direction = Sort.Direction.DESC, size = 10) Pageable pageable) {
         Page<PostPreview> page = postService.getPostsByUser(id, pageable);
+
+        return new PageResponse<>(
+                page.getContent(),
+                page.getTotalElements(),
+                page.getNumber(),
+                page.getSize()
+        );
+    }
+
+    @GetMapping("/{id}/comments")
+    public PageResponse<CommentPreview> getCommentsByUser(@PathVariable String id, @PageableDefault(sort = "publishDate", direction = Sort.Direction.DESC, size = 10) Pageable pageable) {
+        Page<CommentPreview> page = commentService.getCommentsByUser(id, pageable);
 
         return new PageResponse<>(
                 page.getContent(),
