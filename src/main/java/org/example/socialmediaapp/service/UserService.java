@@ -3,6 +3,7 @@ package org.example.socialmediaapp.service;
 import jakarta.transaction.Transactional;
 import org.example.socialmediaapp.dao.UserDao;
 import org.example.socialmediaapp.dto.UserCreate;
+import org.example.socialmediaapp.exception.ResourceNotFoundException;
 import org.example.socialmediaapp.model.Location;
 import org.example.socialmediaapp.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.server.ResponseStatusException;
 
 
@@ -25,12 +27,10 @@ public class UserService {
 
 
     public User getUserById(String id) {
-        return userDao.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        return userDao.findById(id).orElseThrow(() -> new ResourceNotFoundException("User", id));
     }
 
     public User createUser(UserCreate user) {
-
         User newUser = new User();
         newUser.setTitle(user.title());
         newUser.setFirstName(user.firstName());
@@ -88,9 +88,8 @@ public class UserService {
     }
 
     public String deleteUser(String id) {
-
         if (!userDao.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+            throw new ResourceNotFoundException("User", id);
         }
 
         userDao.deleteById(id);

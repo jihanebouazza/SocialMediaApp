@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import org.example.socialmediaapp.dao.CommentDao;
 import org.example.socialmediaapp.dto.CommentCreate;
 import org.example.socialmediaapp.dto.CommentPreview;
+import org.example.socialmediaapp.exception.ResourceNotFoundException;
 import org.example.socialmediaapp.mapper.CommentMapper;
 import org.example.socialmediaapp.model.Comment;
 import org.example.socialmediaapp.model.Post;
@@ -57,9 +58,8 @@ public class CommentService {
     }
 
     public String deleteComment(String id) {
-
         if (!commentDao.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+            throw new ResourceNotFoundException("Comment", id);
         }
 
         commentDao.deleteById(id);

@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import org.example.socialmediaapp.dao.PostDao;
 import org.example.socialmediaapp.dto.PostCreate;
 import org.example.socialmediaapp.dto.PostPreview;
+import org.example.socialmediaapp.exception.ResourceNotFoundException;
 import org.example.socialmediaapp.mapper.PostMapper;
 import org.example.socialmediaapp.model.Post;
 import org.example.socialmediaapp.model.User;
@@ -38,13 +39,11 @@ public class PostService {
     }
 
     public Post getPostById(String id) {
-        return postDao.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found"));
+        return postDao.findById(id).orElseThrow(() -> new ResourceNotFoundException("Post", id));
     }
 
     public Post createPost(PostCreate post) {
-
         User user = userService.getUserById(post.user());
-
 
         Post newPost = new Post();
         newPost.setText(post.text().trim());
@@ -75,7 +74,7 @@ public class PostService {
     public String deletePost(String id) {
 
         if (!postDao.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
+            throw new ResourceNotFoundException("Post", id);
         }
 
         postDao.deleteById(id);

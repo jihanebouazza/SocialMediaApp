@@ -48,7 +48,6 @@ public class UserController {
         return userService.getUserById(id);
     }
 
-
     @PostMapping
     public User createUser(@RequestBody @Valid UserCreate user) {
         return userService.createUser(user);
