@@ -17,7 +17,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
-
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -32,8 +31,18 @@ public class UserController {
     private CommentService commentService;
 
     @GetMapping
-    public PageResponse<User> getAllUsers(@PageableDefault(sort = "registerDate", direction = Sort.Direction.DESC, size = 10) Pageable pageable) {
-        Page<User> page = userService.getAllUsers(pageable);
+    public PageResponse<User> getAllUsers(@RequestParam(required = false) String title,@RequestParam(required = false) String email, @PageableDefault(sort = "registerDate", direction = Sort.Direction.DESC, size = 10) Pageable pageable) {
+        Page<User> page;
+
+        if (title != null && !title.isBlank()) {
+            page = userService.filterByTitle(title, pageable);
+        }
+        else if (email != null && !email.isBlank()) {
+            page = userService.searchByEmail(email, pageable);
+        }
+        else {
+            page = userService.getAllUsers(pageable);
+        }
 
         return new PageResponse<>(
                 page.getContent(),

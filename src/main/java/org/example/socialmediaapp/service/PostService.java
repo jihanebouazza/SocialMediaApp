@@ -81,5 +81,10 @@ public class PostService {
         return id;
     }
 
+    public Page<PostPreview> searchPosts(String query, Pageable pageable) {
+        Page<Post> page = postDao.findByTextContainingIgnoreCase(query.trim(), pageable);
+        return page.map(PostMapper::toPostPreview);
+    }
+
 
 }

@@ -29,10 +29,26 @@ public class PostController {
     private CommentService commentService;
 
     @GetMapping
-    public PageResponse<PostPreview> getAllPosts(@PageableDefault(sort = "publishDate", direction = Sort.Direction.DESC, size = 10) Pageable pageable) {
-        Page<PostPreview> page = postService.getAllPostsPreview(pageable);
+    public PageResponse<PostPreview> getPosts(
+            @RequestParam(required = false) String q,
+            @PageableDefault(sort = "publishDate",
+                    direction = Sort.Direction.DESC,
+                    size = 10) Pageable pageable) {
 
-        return new PageResponse<>(page.getContent(), page.getTotalElements(), page.getNumber(), page.getSize());
+        Page<PostPreview> page;
+
+        if (q != null && !q.isBlank()) {
+            page = postService.searchPosts(q, pageable);
+        } else {
+            page = postService.getAllPostsPreview(pageable);
+        }
+
+        return new PageResponse<>(
+                page.getContent(),
+                page.getTotalElements(),
+                page.getNumber(),
+                page.getSize()
+        );
     }
 
     @GetMapping("/{id}")

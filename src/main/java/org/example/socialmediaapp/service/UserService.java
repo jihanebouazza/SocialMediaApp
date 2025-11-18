@@ -25,7 +25,6 @@ public class UserService {
         return userDao.findAll(pageable);
     }
 
-
     public User getUserById(String id) {
         return userDao.findById(id).orElseThrow(() -> new ResourceNotFoundException("User", id));
     }
@@ -94,5 +93,13 @@ public class UserService {
 
         userDao.deleteById(id);
         return id;
+    }
+
+    public Page<User> searchByEmail(String email, Pageable pageable) {
+        return userDao.findByEmailContainingIgnoreCase(email.trim(), pageable);
+    }
+
+    public Page<User> filterByTitle(String title, Pageable pageable) {
+      return userDao.findByTitleIgnoreCase(title.trim(), pageable);
     }
 }

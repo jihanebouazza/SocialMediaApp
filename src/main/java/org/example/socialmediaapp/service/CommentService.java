@@ -16,6 +16,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
+
 @Service
 @Transactional
 public class CommentService {
@@ -65,4 +67,12 @@ public class CommentService {
         commentDao.deleteById(id);
         return id;
     }
+
+    public Page<CommentPreview> filterByDateRange(LocalDateTime from, LocalDateTime to, Pageable pageable) {
+
+        Page<Comment> page = commentDao.findByPublishDateBetween(from, to, pageable);
+
+        return page.map(CommentMapper::toCommentPreview);
+    }
+
 }

@@ -12,7 +12,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
 
 
 @RestController
@@ -22,8 +25,14 @@ public class CommentController {
     private CommentService commentService;
 
     @GetMapping
-    public PageResponse<CommentPreview> getAllComments(@PageableDefault(sort = "publishDate", direction = Sort.Direction.DESC, size = 10) Pageable pageable) {
-        Page<CommentPreview> page = commentService.getAllComments(pageable);
+    public PageResponse<CommentPreview> getAllComments(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from, @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to, @PageableDefault(sort = "publishDate", direction = Sort.Direction.DESC, size = 10) Pageable pageable) {
+        Page<CommentPreview> page;
+
+        if (from != null && to != null) {
+            page = commentService.filterByDateRange(from, to, pageable);
+        } else {
+            page = commentService.getAllComments(pageable);
+        }
 
         return new PageResponse<>(page.getContent(), page.getTotalElements(), page.getNumber(), page.getSize());
     }

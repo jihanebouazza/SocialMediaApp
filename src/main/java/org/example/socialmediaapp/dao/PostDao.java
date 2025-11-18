@@ -15,5 +15,7 @@ public interface PostDao extends JpaRepository<Post, String>, JpaSpecificationEx
 
     @Query("select p from Post p where :tag member of p.tags")
     Page<Post> findByTag(String tag, Pageable pageable);
+
+    Page<Post> findByTextContainingIgnoreCase(String q, Pageable pageable);
 }
 
