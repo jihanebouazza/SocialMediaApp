@@ -15,11 +15,16 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+
 @RestController
-@RequestMapping(path = "/api/v1/users", produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
+@RequestMapping(path = "/api/v1/users", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
 public class UserController {
 
     @Autowired
@@ -32,26 +37,34 @@ public class UserController {
     private CommentService commentService;
 
     @GetMapping
-    public PageResponse<User> getAllUsers(@RequestParam(required = false) String title,@RequestParam(required = false) String email, @PageableDefault(sort = "registerDate", direction = Sort.Direction.DESC, size = 10) Pageable pageable) {
+    public ResponseEntity<PageResponse<User>> getAllUsers(
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String email,
+            @PageableDefault(sort = "registerDate", direction = Sort.Direction.DESC, size = 10)
+            Pageable pageable
+    ) {
         Page<User> page;
 
         if (title != null && !title.isBlank()) {
             page = userService.filterByTitle(title, pageable);
-        }
-        else if (email != null && !email.isBlank()) {
+        } else if (email != null && !email.isBlank()) {
             page = userService.searchByEmail(email, pageable);
-        }
-        else {
+        } else {
             page = userService.getAllUsers(pageable);
         }
 
-        return new PageResponse<>(
+        PageResponse<User> body = new PageResponse<>(
                 page.getContent(),
                 page.getTotalElements(),
                 page.getNumber(),
                 page.getSize()
         );
+
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(60, TimeUnit.SECONDS).cachePublic())
+                .body(body);
     }
+
 
     @GetMapping("/{id}")
     public User getUser(@PathVariable String id) {

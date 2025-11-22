@@ -13,14 +13,17 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @RestController
-@RequestMapping(path = "/api/v1/posts", produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
+@RequestMapping(path = "/api/v1/posts", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
 public class PostController {
 
     @Autowired
@@ -29,7 +32,7 @@ public class PostController {
     private CommentService commentService;
 
     @GetMapping
-    public PageResponse<PostPreview> getPosts(
+    public ResponseEntity<PageResponse<PostPreview>> getPosts(
             @RequestParam(required = false) String q,
             @PageableDefault(sort = "publishDate",
                     direction = Sort.Direction.DESC,
@@ -43,12 +46,16 @@ public class PostController {
             page = postService.getAllPostsPreview(pageable);
         }
 
-        return new PageResponse<>(
+        PageResponse<PostPreview> body = new PageResponse<>(
                 page.getContent(),
                 page.getTotalElements(),
                 page.getNumber(),
                 page.getSize()
         );
+
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(60, TimeUnit.SECONDS).cachePublic())
+                .body(body);
     }
 
     @GetMapping("/{id}")

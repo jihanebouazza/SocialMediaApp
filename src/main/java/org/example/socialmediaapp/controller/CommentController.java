@@ -13,20 +13,23 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.util.concurrent.TimeUnit;
 
 
 @RestController
-@RequestMapping(path = "/api/v1/comments", produces = { MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE })
+@RequestMapping(path = "/api/v1/comments", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
 public class CommentController {
     @Autowired
     private CommentService commentService;
 
     @GetMapping
-    public PageResponse<CommentPreview> getAllComments(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from, @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to, @PageableDefault(sort = "publishDate", direction = Sort.Direction.DESC, size = 10) Pageable pageable) {
+    public ResponseEntity<PageResponse<CommentPreview>> getAllComments(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime from, @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime to, @PageableDefault(sort = "publishDate", direction = Sort.Direction.DESC, size = 10) Pageable pageable) {
         Page<CommentPreview> page;
 
         if (from != null && to != null) {
@@ -35,7 +38,11 @@ public class CommentController {
             page = commentService.getAllComments(pageable);
         }
 
-        return new PageResponse<>(page.getContent(), page.getTotalElements(), page.getNumber(), page.getSize());
+        PageResponse<CommentPreview> body = new PageResponse<>(page.getContent(), page.getTotalElements(), page.getNumber(), page.getSize());
+
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.maxAge(60, TimeUnit.SECONDS).cachePublic())
+                .body(body);
     }
 
     @PostMapping
