@@ -3,8 +3,12 @@ package org.example.socialmediaapp.service;
 import jakarta.transaction.Transactional;
 import org.example.socialmediaapp.dao.UserDao;
 import org.example.socialmediaapp.dto.UserCreate;
+import org.example.socialmediaapp.dto.UserFull;
 import org.example.socialmediaapp.exception.ResourceNotFoundException;
+import org.example.socialmediaapp.mapper.PostMapper;
+import org.example.socialmediaapp.mapper.UserMapper;
 import org.example.socialmediaapp.model.Location;
+import org.example.socialmediaapp.model.Post;
 import org.example.socialmediaapp.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -21,12 +25,19 @@ public class UserService {
     @Autowired
     private UserDao userDao;
 
-    public Page<User> getAllUsers(Pageable pageable) {
-        return userDao.findAll(pageable);
+    public User getUserEntityById(String id) {
+        return userDao.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User", id));
     }
 
-    public User getUserById(String id) {
-        return userDao.findById(id).orElseThrow(() -> new ResourceNotFoundException("User", id));
+
+    public Page<UserFull> getAllUsers(Pageable pageable) {
+        Page<User> p = userDao.findAll(pageable);
+        return p.map(UserMapper::toUserFull);
+    }
+
+    public UserFull getUserById(String id) {
+        return userDao.findById(id).map(UserMapper::toUserFull).orElseThrow(() -> new ResourceNotFoundException("User", id));
     }
 
     public User createUser(UserCreate user) {
@@ -55,7 +66,7 @@ public class UserService {
     }
 
     public User updateUser(String id, User userDetails) {
-        User user = getUserById(id);
+        User user = getUserEntityById(id);
         if (userDetails.getEmail() != null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email cannot be updated");
         }
@@ -95,11 +106,11 @@ public class UserService {
         return id;
     }
 
-    public Page<User> searchByEmail(String email, Pageable pageable) {
-        return userDao.findByEmailContainingIgnoreCase(email.trim(), pageable);
+    public Page<UserFull> searchByEmail(String email, Pageable pageable) {
+        return userDao.findByEmailContainingIgnoreCase(email.trim(), pageable).map(UserMapper::toUserFull);
     }
 
-    public Page<User> filterByTitle(String title, Pageable pageable) {
-      return userDao.findByTitleIgnoreCase(title.trim(), pageable);
+    public Page<UserFull> filterByTitle(String title, Pageable pageable) {
+        return userDao.findByTitleIgnoreCase(title.trim(), pageable).map(UserMapper::toUserFull);
     }
 }

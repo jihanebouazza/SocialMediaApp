@@ -43,7 +43,7 @@ public class PostService {
     }
 
     public Post createPost(PostCreate post) {
-        User user = userService.getUserById(post.user());
+        User user = userService.getUserEntityById(post.user());
 
         Post newPost = new Post();
         newPost.setText(post.text().trim());

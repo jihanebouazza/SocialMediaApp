@@ -47,7 +47,7 @@ public class CommentService {
 
     public Comment createComment(CommentCreate comment) {
 
-        User user = userService.getUserById(comment.user());
+        User user = userService.getUserEntityById(comment.user());
         Post post = postService.getPostById(comment.post());
 
         Comment newComment = new Comment();

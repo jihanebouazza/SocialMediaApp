@@ -2,10 +2,8 @@ package org.example.socialmediaapp.controller;
 
 
 import jakarta.validation.Valid;
-import org.example.socialmediaapp.dto.CommentPreview;
-import org.example.socialmediaapp.dto.PageResponse;
-import org.example.socialmediaapp.dto.PostPreview;
-import org.example.socialmediaapp.dto.UserCreate;
+import org.example.socialmediaapp.dto.*;
+import org.example.socialmediaapp.hateoas.UserModelAssembler;
 import org.example.socialmediaapp.model.User;
 import org.example.socialmediaapp.service.CommentService;
 import org.example.socialmediaapp.service.PostService;
@@ -15,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -36,14 +35,17 @@ public class UserController {
     @Autowired
     private CommentService commentService;
 
+    @Autowired
+    private UserModelAssembler assembler;
+
     @GetMapping
-    public ResponseEntity<PageResponse<User>> getAllUsers(
+    public ResponseEntity<PageResponse<EntityModel<UserFull>>> getAllUsers(
             @RequestParam(required = false) String title,
             @RequestParam(required = false) String email,
             @PageableDefault(sort = "registerDate", direction = Sort.Direction.DESC, size = 10)
             Pageable pageable
     ) {
-        Page<User> page;
+        Page<UserFull> page;
 
         if (title != null && !title.isBlank()) {
             page = userService.filterByTitle(title, pageable);
@@ -53,8 +55,13 @@ public class UserController {
             page = userService.getAllUsers(pageable);
         }
 
-        PageResponse<User> body = new PageResponse<>(
-                page.getContent(),
+        // 🔹 Add HATEOAS links to each user in the page
+        var content = page.getContent().stream()
+                .map(assembler::toModel)   // EntityModel<UserFull>
+                .toList();
+
+        PageResponse<EntityModel<UserFull>> body = new PageResponse<>(
+                content,
                 page.getTotalElements(),
                 page.getNumber(),
                 page.getSize()
@@ -67,8 +74,9 @@ public class UserController {
 
 
     @GetMapping("/{id}")
-    public User getUser(@PathVariable String id) {
-        return userService.getUserById(id);
+    public ResponseEntity<EntityModel<UserFull>> getUser(@PathVariable String id) {
+        UserFull user = userService.getUserById(id);
+        return ResponseEntity.ok(assembler.toModel(user));
     }
 
     @PostMapping

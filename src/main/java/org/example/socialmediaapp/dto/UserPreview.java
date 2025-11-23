@@ -6,4 +6,5 @@ public record UserPreview(
         String firstName,
         String lastName,
         String picture
-) {}
+) {
+}
