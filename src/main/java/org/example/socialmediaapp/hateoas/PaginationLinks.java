@@ -1,10 +1,12 @@
 package org.example.socialmediaapp.hateoas;
 
+import org.springframework.data.domain.Page;
 import org.springframework.hateoas.Link;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -40,5 +42,34 @@ public class PaginationLinks {
         });
 
         return linkTo(controllerClass).slash(sb.toString()).withSelfRel();
+    }
+
+    public static Map<String, Link> createForBaseUrl(Page<?> page, String baseUrl) {
+        int pageNumber = page.getNumber();
+        int pageSize = page.getSize();
+        long lastPage = Math.max(page.getTotalPages() - 1, 0);
+
+        Map<String, Link> links = new HashMap<>();
+
+        // self
+        links.put("self", Link.of(baseUrl + "?page=" + pageNumber + "&size=" + pageSize, "self"));
+
+        // first
+        links.put("first", Link.of(baseUrl + "?page=0&size=" + pageSize, "first"));
+
+        // last
+        links.put("last", Link.of(baseUrl + "?page=" + lastPage + "&size=" + pageSize, "last"));
+
+        // next
+        if (page.hasNext()) {
+            links.put("next", Link.of(baseUrl + "?page=" + (pageNumber + 1) + "&size=" + pageSize, "next"));
+        }
+
+        // prev
+        if (page.hasPrevious()) {
+            links.put("prev", Link.of(baseUrl + "?page=" + (pageNumber - 1) + "&size=" + pageSize, "prev"));
+        }
+
+        return links;
     }
 }

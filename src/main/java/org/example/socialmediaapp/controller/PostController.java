@@ -1,5 +1,6 @@
 package org.example.socialmediaapp.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.example.socialmediaapp.dto.*;
 import org.example.socialmediaapp.hateoas.CommentPreviewModelAssembler;
@@ -30,6 +31,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+@Tag(name = "Posts", description = "Operations related to posts")
 @RestController
 @RequestMapping(path = "/api/v1/posts", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
 public class PostController {
@@ -136,6 +138,7 @@ public class PostController {
 
     @GetMapping("/{id}/comments")
     public ResponseEntity<PageResponseWithLinks<EntityModel<CommentPreview>>> getCommentsByPost(@PathVariable String id, @PageableDefault(sort = "publishDate", direction = Sort.Direction.DESC, size = 10) Pageable pageable) {
+
         Page<CommentPreview> page = commentService.getCommentsByPost(id, pageable);
 
         var content = page.getContent().stream().map(commentPreviewAssembler::toModel).toList();
@@ -144,32 +147,7 @@ public class PostController {
 
         String baseUrl = linkTo(PostController.class).slash(id).slash("comments").toUri().toString();
 
-        int pageNumber = page.getNumber();
-        int pageSize = page.getSize();
-        long lastPage = Math.max(page.getTotalPages() - 1, 0);
-
-        Map<String, Link> links = new HashMap<>();
-
-        // self
-        links.put("self", Link.of(baseUrl + "?page=" + pageNumber + "&size=" + pageSize, "self"));
-
-        // first
-        links.put("first", Link.of(baseUrl + "?page=0&size=" + pageSize, "first"));
-
-        // last
-        links.put("last", Link.of(baseUrl + "?page=" + lastPage + "&size=" + pageSize, "last"));
-
-        // next
-        if (page.hasNext()) {
-            links.put("next", Link.of(baseUrl + "?page=" + (pageNumber + 1) + "&size=" + pageSize, "next"));
-        }
-
-        // prev
-        if (page.hasPrevious()) {
-            links.put("prev", Link.of(baseUrl + "?page=" + (pageNumber - 1) + "&size=" + pageSize, "prev"));
-        }
-
-        // links.put("post", Link.of(linkTo(PostController.class).slash(id).toUri().toString(), "post"));
+        Map<String, Link> links = PaginationLinks.createForBaseUrl(page, baseUrl);
 
         PageResponseWithLinks<EntityModel<CommentPreview>> body = new PageResponseWithLinks<>(pageResponse, links);
 

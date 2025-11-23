@@ -1,6 +1,7 @@
 package org.example.socialmediaapp.controller;
 
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.example.socialmediaapp.dto.CommentCreate;
 import org.example.socialmediaapp.dto.CommentPreview;
@@ -33,7 +34,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-
+@Tag(name = "Comments", description = "Operations related to comments")
 @RestController
 @RequestMapping(path = "/api/v1/comments", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
 public class CommentController {
