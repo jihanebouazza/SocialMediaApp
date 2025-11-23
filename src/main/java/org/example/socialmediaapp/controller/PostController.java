@@ -1,10 +1,12 @@
 package org.example.socialmediaapp.controller;
 
 import jakarta.validation.Valid;
-import org.example.socialmediaapp.dto.CommentPreview;
-import org.example.socialmediaapp.dto.PageResponse;
-import org.example.socialmediaapp.dto.PostCreate;
-import org.example.socialmediaapp.dto.PostPreview;
+import org.example.socialmediaapp.dto.*;
+import org.example.socialmediaapp.hateoas.CommentPreviewModelAssembler;
+import org.example.socialmediaapp.hateoas.PaginationLinks;
+import org.example.socialmediaapp.hateoas.PostModelAssembler;
+import org.example.socialmediaapp.hateoas.PostPreviewModelAssembler;
+import org.example.socialmediaapp.mapper.PostMapper;
 import org.example.socialmediaapp.model.Post;
 import org.example.socialmediaapp.service.CommentService;
 import org.example.socialmediaapp.service.PostService;
@@ -13,11 +15,17 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.Link;
 import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+
+
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -31,36 +39,46 @@ public class PostController {
     @Autowired
     private CommentService commentService;
 
+    @Autowired
+    private PostPreviewModelAssembler postPreviewAssembler;
+
+    @Autowired
+    private PostModelAssembler postModelAssembler;
+
+    @Autowired
+    private CommentPreviewModelAssembler commentPreviewAssembler;
+
+
     @GetMapping
-    public ResponseEntity<PageResponse<PostPreview>> getPosts(
-            @RequestParam(required = false) String q,
-            @PageableDefault(sort = "publishDate",
-                    direction = Sort.Direction.DESC,
-                    size = 10) Pageable pageable) {
+    public ResponseEntity<PageResponseWithLinks<EntityModel<PostPreview>>> getPosts(@RequestParam(required = false) String q, @PageableDefault(sort = "publishDate", direction = Sort.Direction.DESC, size = 10) Pageable pageable) {
 
         Page<PostPreview> page;
 
         if (q != null && !q.isBlank()) {
             page = postService.searchPosts(q, pageable);
         } else {
-            page = postService.getAllPostsPreview(pageable);
+            page = postService.getAllPosts(pageable);
         }
 
-        PageResponse<PostPreview> body = new PageResponse<>(
-                page.getContent(),
-                page.getTotalElements(),
-                page.getNumber(),
-                page.getSize()
-        );
+        var content = page.getContent().stream().map(postPreviewAssembler::toModel).toList();
 
-        return ResponseEntity.ok()
-                .cacheControl(CacheControl.maxAge(60, TimeUnit.SECONDS).cachePublic())
-                .body(body);
+        PageResponse<EntityModel<PostPreview>> pageResponse = new PageResponse<>(content, page.getTotalElements(), page.getNumber(), page.getSize());
+
+        Map<String, String> filters = new HashMap<>();
+        filters.put("q", q);
+
+        Map<String, Link> links = PaginationLinks.create(page.getNumber(), page.getSize(), page.getTotalElements(), PostController.class, filters);
+
+        PageResponseWithLinks<EntityModel<PostPreview>> body = new PageResponseWithLinks<>(pageResponse, links);
+
+        return ResponseEntity.ok().cacheControl(CacheControl.maxAge(60, TimeUnit.SECONDS).cachePublic()).body(body);
     }
 
+
     @GetMapping("/{id}")
-    public Post getPostById(@PathVariable String id) {
-        return postService.getPostById(id);
+    public ResponseEntity<EntityModel<PostFull>> getPostById(@PathVariable String id) {
+        PostFull post = postService.getPostById(id);
+        return ResponseEntity.ok(postModelAssembler.toModel(post));
     }
 
     /*
@@ -91,13 +109,24 @@ public class PostController {
     }
     */
     @PostMapping
-    public Post createPost(@RequestBody @Valid PostCreate post) {
-        return postService.createPost(post);
+    public ResponseEntity<EntityModel<PostFull>> createPost(@RequestBody @Valid PostCreate postCreate) {
+        Post created = postService.createPost(postCreate);
+        PostFull dto = PostMapper.toPostFull(created); // you already have PostMapper
+
+        EntityModel<PostFull> model = postModelAssembler.toModel(dto);
+
+        URI location = linkTo(PostController.class).slash(dto.id()).toUri();
+
+        return ResponseEntity.created(location).body(model);
     }
 
     @PutMapping("/{id}")
-    public Post updatePost(@PathVariable String id, @RequestBody Post post) {
-        return postService.updatePost(id, post);
+    public ResponseEntity<EntityModel<PostFull>> updatePost(@PathVariable String id, @RequestBody Post postDetails) {
+
+        Post updated = postService.updatePost(id, postDetails);
+        PostFull dto = PostMapper.toPostFull(updated);
+
+        return ResponseEntity.ok(postModelAssembler.toModel(dto));
     }
 
     @DeleteMapping("/{id}")
@@ -105,12 +134,47 @@ public class PostController {
         return postService.deletePost(id);
     }
 
-    @GetMapping("{id}/comments")
-    public PageResponse<CommentPreview> getCommentsByPost(@PathVariable String id, @PageableDefault(sort = "publishDate", direction = Sort.Direction.DESC, size = 10) Pageable pageable) {
-
+    @GetMapping("/{id}/comments")
+    public ResponseEntity<PageResponseWithLinks<EntityModel<CommentPreview>>> getCommentsByPost(@PathVariable String id, @PageableDefault(sort = "publishDate", direction = Sort.Direction.DESC, size = 10) Pageable pageable) {
         Page<CommentPreview> page = commentService.getCommentsByPost(id, pageable);
 
-        return new PageResponse<>(page.getContent(), page.getTotalElements(), page.getNumber(), page.getSize());
+        var content = page.getContent().stream().map(commentPreviewAssembler::toModel).toList();
+
+        PageResponse<EntityModel<CommentPreview>> pageResponse = new PageResponse<>(content, page.getTotalElements(), page.getNumber(), page.getSize());
+
+        String baseUrl = linkTo(PostController.class).slash(id).slash("comments").toUri().toString();
+
+        int pageNumber = page.getNumber();
+        int pageSize = page.getSize();
+        long lastPage = Math.max(page.getTotalPages() - 1, 0);
+
+        Map<String, Link> links = new HashMap<>();
+
+        // self
+        links.put("self", Link.of(baseUrl + "?page=" + pageNumber + "&size=" + pageSize, "self"));
+
+        // first
+        links.put("first", Link.of(baseUrl + "?page=0&size=" + pageSize, "first"));
+
+        // last
+        links.put("last", Link.of(baseUrl + "?page=" + lastPage + "&size=" + pageSize, "last"));
+
+        // next
+        if (page.hasNext()) {
+            links.put("next", Link.of(baseUrl + "?page=" + (pageNumber + 1) + "&size=" + pageSize, "next"));
+        }
+
+        // prev
+        if (page.hasPrevious()) {
+            links.put("prev", Link.of(baseUrl + "?page=" + (pageNumber - 1) + "&size=" + pageSize, "prev"));
+        }
+
+        // links.put("post", Link.of(linkTo(PostController.class).slash(id).toUri().toString(), "post"));
+
+        PageResponseWithLinks<EntityModel<CommentPreview>> body = new PageResponseWithLinks<>(pageResponse, links);
+
+        return ResponseEntity.ok(body);
     }
+
 
 }

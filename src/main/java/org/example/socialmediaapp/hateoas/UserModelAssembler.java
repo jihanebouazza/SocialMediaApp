@@ -2,7 +2,6 @@ package org.example.socialmediaapp.hateoas;
 
 import org.example.socialmediaapp.controller.UserController;
 import org.example.socialmediaapp.dto.UserFull;
-import org.springframework.data.domain.Pageable;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
@@ -15,14 +14,10 @@ public class UserModelAssembler {
         EntityModel<UserFull> model = EntityModel.of(user);
 
         // Self link
-        model.add(WebMvcLinkBuilder.linkTo(
-                WebMvcLinkBuilder.methodOn(UserController.class).getUser(user.id())
-        ).withSelfRel());
+        model.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).getUser(user.id())).withSelfRel());
 
         // Link to all users
-        model.add(WebMvcLinkBuilder.linkTo(
-                WebMvcLinkBuilder.methodOn(UserController.class).getAllUsers(null, null, null)
-        ).withRel("users"));
+        model.add(WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(UserController.class).getAllUsers(null, null, null)).withRel("users"));
 
         // Link to user's posts
         model.add(Link.of("/api/v1/users/" + user.id() + "/posts").withRel("posts"));

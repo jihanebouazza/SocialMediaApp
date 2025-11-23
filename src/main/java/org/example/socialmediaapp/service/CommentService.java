@@ -12,9 +12,7 @@ import org.example.socialmediaapp.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 
@@ -48,7 +46,7 @@ public class CommentService {
     public Comment createComment(CommentCreate comment) {
 
         User user = userService.getUserEntityById(comment.user());
-        Post post = postService.getPostById(comment.post());
+        Post post = postService.getPostEntityById(comment.post());
 
         Comment newComment = new Comment();
         newComment.setMessage(comment.message().trim());

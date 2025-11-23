@@ -3,6 +3,7 @@ package org.example.socialmediaapp.service;
 import jakarta.transaction.Transactional;
 import org.example.socialmediaapp.dao.PostDao;
 import org.example.socialmediaapp.dto.PostCreate;
+import org.example.socialmediaapp.dto.PostFull;
 import org.example.socialmediaapp.dto.PostPreview;
 import org.example.socialmediaapp.exception.ResourceNotFoundException;
 import org.example.socialmediaapp.mapper.PostMapper;
@@ -25,7 +26,7 @@ public class PostService {
     @Autowired
     private UserService userService;
 
-    public Page<PostPreview> getAllPostsPreview(Pageable pageable) {
+    public Page<PostPreview> getAllPosts(Pageable pageable) {
         Page<Post> p = postDao.findAll(pageable);
         return p.map(PostMapper::toPostPreview);
     }
@@ -38,9 +39,17 @@ public class PostService {
         return postDao.findByTag(tag, pageable).map(PostMapper::toPostPreview);
     }
 
-    public Post getPostById(String id) {
+    public PostFull getPostById(String id) {
+        Post post = postDao.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Post", id));
+
+        return PostMapper.toPostFull(post);
+    }
+
+    public Post getPostEntityById(String id) {
         return postDao.findById(id).orElseThrow(() -> new ResourceNotFoundException("Post", id));
     }
+
 
     public Post createPost(PostCreate post) {
         User user = userService.getUserEntityById(post.user());
@@ -57,7 +66,7 @@ public class PostService {
     }
 
     public Post updatePost(String id, Post postDetails) {
-        Post post = getPostById(id);
+        Post post = getPostEntityById(id);
 
         if (postDetails.getUser() != null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Updating the owner of a post is forbidden");
